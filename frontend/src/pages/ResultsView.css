@@ -1,0 +1,23 @@
+/* ResultsView Styles */
+
+.result-card {
+  transition: all 0.3s ease;
+}
+
+.result-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.gauge-ring {
+  animation: fill 1s ease-out forwards;
+}
+
+@keyframes fill {
+  from {
+    stroke-dashoffset: 314;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}

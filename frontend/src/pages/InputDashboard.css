@@ -1,0 +1,17 @@
+/* InputDashboard Styles */
+
+.input-field {
+  transition: all 0.3s ease;
+}
+
+.input-field:focus {
+  transform: translateY(-2px);
+}
+
+.preset-button {
+  transition: all 0.2s ease;
+}
+
+.preset-button:hover {
+  transform: translateY(-2px);
+}

@@ -1,0 +1,13 @@
+# Hydroponic Plant Health Predictor Frontend
+
+React + Vite frontend for the hydroponic plant prediction system.
+
+## Setup
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The app will run on http://localhost:5173
