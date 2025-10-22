@@ -25,7 +25,15 @@ app = FastAPI(
 # Enable CORS for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:9000",
+        "http://127.0.0.1:9000",
+        "http://127.0.0.1:8000",
+        "http://127.0.0.1:8001",
+        "*",  # Allow all origins for development
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -81,21 +89,22 @@ class PredictionRequest(BaseModel):
     visual_condition: str  # One of: Healthy, Yellowing, Wilting, Leaf Curling, Spotting
 
 
-class NutrientRecommendation(BaseModel):
-    """Nutrient recommendation model."""
-    nutrient: str
-    issue: str  # Deficiency or Toxicity
-    severity: str  # Low, Medium, High
+class DiseaseRiskDict(BaseModel):
+    """Disease risk breakdown."""
+    class Config:
+        extra = "allow"
 
 
 class PredictionResponse(BaseModel):
     """Output schema for plant health prediction."""
+    health_score: float  # 0-1 score
+    growth_score: float  # 0-1 score
+    yield_score: float  # 0-1 score
     plant_health_status: str  # Healthy, Stressed, Diseased
     growth_rate: str  # Low, Moderate, High
-    yield_prediction: float  # Regression score (0-100)
-    disease_risk_percentage: float  # 0-100
-    nutrient_issues: List[NutrientRecommendation]
-    environmental_recommendations: List[str]
+    disease_risk: Dict[str, float]  # Disease name -> probability
+    nutrient_recommendations: List[str]  # Nutrient recommendations
+    environmental_recommendations: List[str]  # Environmental recommendations
     confidence_score: float  # 0-1
     model_version: str
 
@@ -127,102 +136,45 @@ def get_growth_rate(growth_score: float) -> str:
 
 def generate_nutrient_recommendations(
     ph: float, ec: float, health_score: float, visual_condition: str
-) -> List[NutrientRecommendation]:
+) -> List[str]:
     """Generate nutrient deficiency/toxicity recommendations based on parameters."""
     recommendations = []
 
     # pH-based nutrient availability analysis
     if ph < 4.5:
-        recommendations.append(
-            NutrientRecommendation(
-                nutrient="Iron, Manganese, Zinc",
-                issue="Toxicity - Excessive availability",
-                severity="High",
-            )
-        )
-        recommendations.append(
-            NutrientRecommendation(
-                nutrient="Phosphorus, Calcium", issue="Deficiency", severity="Medium"
-            )
-        )
+        recommendations.append("⚠ Iron/Manganese/Zinc toxicity - pH too low, reduce acidity")
+        recommendations.append("📉 Phosphorus/Calcium may be deficient - adjust pH upward")
     elif 5.5 <= ph <= 6.5:  # Optimal range
         if ec < 800:
-            recommendations.append(
-                NutrientRecommendation(
-                    nutrient="Nitrogen, Phosphorus, Potassium",
-                    issue="Deficiency - Low EC",
-                    severity="Medium",
-                )
-            )
+            recommendations.append("💧 NPK deficiency possible - increase EC/nutrient concentration")
     elif ph > 7.5:
-        recommendations.append(
-            NutrientRecommendation(
-                nutrient="Iron, Zinc, Manganese",
-                issue="Deficiency - High pH reduces availability",
-                severity="High",
-            )
-        )
-        recommendations.append(
-            NutrientRecommendation(
-                nutrient="Calcium, Magnesium",
-                issue="Toxicity potential",
-                severity="Medium",
-            )
-        )
+        recommendations.append("⚠ Iron/Zinc/Manganese deficiency - high pH reduces availability, lower pH")
+        recommendations.append("⚠ Calcium/Magnesium toxicity risk - monitor closely")
 
     # EC-based nutrient analysis
     if ec > 2000:
-        recommendations.append(
-            NutrientRecommendation(
-                nutrient="All micronutrients",
-                issue="Toxicity - High EC causes salt accumulation",
-                severity="High",
-            )
-        )
+        recommendations.append("🧂 High EC detected - salt/nutrient accumulation risk, reduce concentration")
     elif ec < 500:
-        if not any(
-            "Deficiency - Low EC" in r.issue for r in recommendations
-        ):
-            recommendations.append(
-                NutrientRecommendation(
-                    nutrient="General nutrients",
-                    issue="Deficiency - Insufficient nutrient solution",
-                    severity="High",
-                )
-            )
+        recommendations.append("💧 Very low EC - insufficient nutrients, increase solution strength")
 
     # Visual condition-based analysis
     visual_issues = {
-        "Yellowing": [
-            NutrientRecommendation(
-                nutrient="Nitrogen", issue="Deficiency", severity="High"
-            )
-        ],
-        "Wilting": [
-            NutrientRecommendation(
-                nutrient="Potassium, Water uptake", issue="Deficiency", severity="High"
-            )
-        ],
-        "Leaf Curling": [
-            NutrientRecommendation(
-                nutrient="Calcium, Boron", issue="Deficiency", severity="Medium"
-            )
-        ],
-        "Spotting": [
-            NutrientRecommendation(
-                nutrient="Magnesium, Sulfur", issue="Deficiency", severity="Medium"
-            )
-        ],
+        "Yellowing": "🟡 Nitrogen deficiency detected - increase N fertilizer",
+        "Wilting": "🌊 Potassium deficiency or water stress - increase K, check watering",
+        "Leaf Curling": "🍃 Calcium/Boron deficiency - supplement calcium",
+        "Spotting": "⚫ Magnesium/Sulfur deficiency - add Epsom salt or magnesium supplement",
     }
 
     if visual_condition in visual_issues:
-        recommendations.extend(visual_issues[visual_condition])
+        recommendations.append(visual_issues[visual_condition])
 
-    return recommendations if recommendations else [
-        NutrientRecommendation(
-            nutrient="General", issue="All levels optimal", severity="Low"
-        )
-    ]
+    # Health-based recommendations
+    if health_score < 0.33:
+        recommendations.append("🚨 Plant severely stressed - review all parameters immediately")
+    elif health_score < 0.66:
+        recommendations.append("⚠ Plant moderately stressed - optimize growing conditions")
+
+    return recommendations if recommendations else ["✓ All nutrient levels appear optimal"]
 
 
 def generate_environmental_recommendations(
@@ -450,12 +402,22 @@ def predict(request: PredictionRequest):
             request.air_humidity,
         )
 
+        # Build disease risk breakdown
+        disease_risk_dict = {
+            "Root Rot": max(0, min(100, disease_risk - 20)) / 100 if request.air_humidity > 75 else disease_risk / 300,
+            "Powdery Mildew": max(0, min(100, disease_risk - 30)) / 100 if 20 < request.water_temperature < 27 else disease_risk / 300,
+            "Nutrient Burn": max(0, min(100, disease_risk - 25)) / 100 if request.ec_value > 2000 else disease_risk / 300,
+            "pH Toxicity": max(0, min(100, disease_risk - 15)) / 100 if request.ph_value < 5 or request.ph_value > 7.5 else disease_risk / 300,
+        }
+
         return PredictionResponse(
+            health_score=float(health_score),
+            growth_score=float(growth_score),
+            yield_score=float(yield_score),
             plant_health_status=health_status,
             growth_rate=growth_rate,
-            yield_prediction=float(yield_score * 100),  # Scale to 0-100
-            disease_risk_percentage=disease_risk,
-            nutrient_issues=nutrient_issues,
+            disease_risk=disease_risk_dict,
+            nutrient_recommendations=nutrient_issues,
             environmental_recommendations=environmental_recs,
             confidence_score=confidence,
             model_version="1.0.0",

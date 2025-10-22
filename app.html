@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 Hydroponic Farmer Dashboard - Professional Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-range {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .input-range input[type="range"] {
+            flex: 1;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+        }
+
+        .input-range .value {
+            min-width: 70px;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .result-box h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .result-box .score {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .result-box .percentage {
+            font-size: 1.2em;
+            opacity: 0.85;
+        }
+
+        .recommendations {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .recommendations h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .recommendations li {
+            padding: 8px 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+        }
+
+        .recommendations li:last-child {
+            border-bottom: none;
+        }
+
+        .recommendations li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.error {
+            background: #fee;
+            border-left: 4px solid #f44;
+            color: #c33;
+        }
+
+        .alert.success {
+            background: #efe;
+            border-left: 4px solid #4f4;
+            color: #3c3;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .status-excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-good {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-poor {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .disease-section {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .disease-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .disease-risk {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .risk-high {
+            color: #c33;
+            font-weight: bold;
+        }
+
+        .risk-medium {
+            color: #f90;
+            font-weight: bold;
+        }
+
+        .risk-low {
+            color: #3c3;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌿 Hydroponic Plant Health Predictor</h1>
+            <p>AI-Powered Plant Analysis System | FastAPI + XGBoost</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Input Form -->
+            <div class="card">
+                <h2>📊 Input Parameters</h2>
+                
+                <div class="alert" id="alert"></div>
+                
+                <form id="predictionForm">
+                    <!-- pH Value -->
+                    <div class="form-group">
+                        <label for="ph_value">pH Value</label>
+                        <div class="input-range">
+                            <input type="range" id="ph_value" name="ph_value" min="3" max="9" step="0.1" value="6.0">
+                            <span class="value" id="ph_display">6.0</span>
+                        </div>
+                    </div>
+
+                    <!-- EC Value -->
+                    <div class="form-group">
+                        <label for="ec_value">EC Value (µS/cm)</label>
+                        <div class="input-range">
+                            <input type="range" id="ec_value" name="ec_value" min="200" max="3000" step="50" value="1200">
+                            <span class="value" id="ec_display">1200</span>
+                        </div>
+                    </div>
+
+                    <!-- Water Temperature -->
+                    <div class="form-group">
+                        <label for="water_temperature">Water Temperature (°C)</label>
+                        <div class="input-range">
+                            <input type="range" id="water_temperature" name="water_temperature" min="5" max="35" step="0.5" value="21">
+                            <span class="value" id="temp_display">21</span>
+                        </div>
+                    </div>
+
+                    <!-- Air Humidity -->
+                    <div class="form-group">
+                        <label for="air_humidity">Air Humidity (%)</label>
+                        <div class="input-range">
+                            <input type="range" id="air_humidity" name="air_humidity" min="20" max="95" step="1" value="60">
+                            <span class="value" id="humidity_display">60</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Condition -->
+                    <div class="form-group">
+                        <label for="visual_condition">Plant Visual Condition</label>
+                        <select id="visual_condition" name="visual_condition">
+                            <option value="Healthy">Healthy</option>
+                            <option value="Yellowing">Yellowing</option>
+                            <option value="Wilting">Wilting</option>
+                            <option value="Leaf Curling">Leaf Curling</option>
+                            <option value="Necrosis">Necrosis</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary">
+                            <span>▶</span> Get Prediction
+                        </button>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn-secondary" onclick="setOptimalValues()">✓ Optimal</button>
+                        <button type="button" class="btn-secondary" onclick="setStressedValues()">⚠ Stressed</button>
+                    </div>
+                </form>
+
+                <div class="loader" id="loader">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px; color: #667eea;">Processing prediction...</p>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="card">
+                <h2>📈 Prediction Results</h2>
+                
+                <div id="resultsContainer" class="hidden">
+                    <div class="results-grid">
+                        <div class="result-box">
+                            <h3>Health Score</h3>
+                            <div class="score" id="healthScore">-</div>
+                            <div class="percentage" id="healthPercent">-</div>
+                        </div>
+                        <div class="result-box">
+                            <h3>Growth Score</h3>
+                            <div class="score" id="growthScore">-</div>
+                            <div class="percentage" id="growthPercent">-</div>
+                        </div>
+                        <div class="result-box">
+                            <h3>Yield Score</h3>
+                            <div class="score" id="yieldScore">-</div>
+                            <div class="percentage" id="yieldPercent">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Disease Risk Section -->
+                    <div class="disease-section">
+                        <h3>🦠 Disease Risk Assessment</h3>
+                        <div id="diseaseRisks"></div>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div class="recommendations">
+                        <h3>💡 Nutrient Recommendations</h3>
+                        <ul id="recommendations"></ul>
+                    </div>
+                </div>
+
+                <div id="noResults" style="text-align: center; color: #999; padding: 40px 20px;">
+                    <p style="font-size: 1.2em;">📍 Fill in parameters and click "Get Prediction"</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🔬 Powered by XGBoost Machine Learning | Backend: http://127.0.0.1:8001</p>
+        </div>
+    </div>
+
+    <script>
+        // Update display values on range input change
+        document.getElementById('ph_value').addEventListener('input', (e) => {
+            document.getElementById('ph_display').textContent = e.target.value;
+        });
+
+        document.getElementById('ec_value').addEventListener('input', (e) => {
+            document.getElementById('ec_display').textContent = e.target.value;
+        });
+
+        document.getElementById('water_temperature').addEventListener('input', (e) => {
+            document.getElementById('temp_display').textContent = e.target.value;
+        });
+
+        document.getElementById('air_humidity').addEventListener('input', (e) => {
+            document.getElementById('humidity_display').textContent = e.target.value;
+        });
+
+        // Set optimal values
+        function setOptimalValues() {
+            document.getElementById('ph_value').value = 6.0;
+            document.getElementById('ec_value').value = 1200;
+            document.getElementById('water_temperature').value = 21;
+            document.getElementById('air_humidity').value = 60;
+            document.getElementById('visual_condition').value = 'Healthy';
+            
+            document.getElementById('ph_display').textContent = 6.0;
+            document.getElementById('ec_display').textContent = 1200;
+            document.getElementById('temp_display').textContent = 21;
+            document.getElementById('humidity_display').textContent = 60;
+            
+            showAlert('Optimal values set!', 'success');
+        }
+
+        // Set stressed values
+        function setStressedValues() {
+            document.getElementById('ph_value').value = 4.5;
+            document.getElementById('ec_value').value = 2200;
+            document.getElementById('water_temperature').value = 28;
+            document.getElementById('air_humidity').value = 75;
+            document.getElementById('visual_condition').value = 'Yellowing';
+            
+            document.getElementById('ph_display').textContent = 4.5;
+            document.getElementById('ec_display').textContent = 2200;
+            document.getElementById('temp_display').textContent = 28;
+            document.getElementById('humidity_display').textContent = 75;
+            
+            showAlert('Stressed values set!', 'success');
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alert');
+            alertBox.textContent = message;
+            alertBox.className = `alert ${type} show`;
+            setTimeout(() => alertBox.classList.remove('show'), 5000);
+        }
+
+        // Format score as percentage
+        function formatScore(score) {
+            return (Math.max(0, Math.min(1, score)) * 100).toFixed(1);
+        }
+
+        // Get status badge
+        function getStatusBadge(score) {
+            const percentage = formatScore(score);
+            if (percentage >= 70) return 'status-excellent';
+            if (percentage >= 40) return 'status-good';
+            return 'status-poor';
+        }
+
+        // Handle form submission
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate inputs
+            const ph = parseFloat(document.getElementById('ph_value').value);
+            const ec = parseFloat(document.getElementById('ec_value').value);
+            const temp = parseFloat(document.getElementById('water_temperature').value);
+            const humidity = parseFloat(document.getElementById('air_humidity').value);
+
+            if (ph < 3 || ph > 9 || ec < 200 || ec > 3000 || temp < 5 || temp > 35 || humidity < 20 || humidity > 95) {
+                showAlert('❌ Please ensure all values are within valid ranges', 'error');
+                return;
+            }
+
+            // Show loader
+            document.getElementById('loader').classList.add('show');
+            document.getElementById('resultsContainer').classList.add('hidden');
+
+            try {
+                const response = await fetch('http://127.0.0.1:9001/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ph_value: ph,
+                        ec_value: ec,
+                        water_temperature: temp,
+                        air_humidity: humidity,
+                        visual_condition: document.getElementById('visual_condition').value,
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                // Display results
+                document.getElementById('healthScore').textContent = data.health_score.toFixed(3);
+                document.getElementById('healthPercent').textContent = formatScore(data.health_score) + '%';
+                
+                document.getElementById('growthScore').textContent = data.growth_score.toFixed(3);
+                document.getElementById('growthPercent').textContent = formatScore(data.growth_score) + '%';
+                
+                document.getElementById('yieldScore').textContent = data.yield_score.toFixed(3);
+                document.getElementById('yieldPercent').textContent = formatScore(data.yield_score) + '%';
+
+                // Display disease risks
+                const diseaseRisks = document.getElementById('diseaseRisks');
+                diseaseRisks.innerHTML = '';
+                for (const [disease, risk] of Object.entries(data.disease_risk || {})) {
+                    const riskPercent = (risk * 100).toFixed(1);
+                    const riskClass = risk > 0.7 ? 'risk-high' : risk > 0.4 ? 'risk-medium' : 'risk-low';
+                    diseaseRisks.innerHTML += `
+                        <div class="disease-risk">
+                            <span>${disease}</span>
+                            <span class="${riskClass}">${riskPercent}%</span>
+                        </div>
+                    `;
+                }
+
+                // Display recommendations
+                const recommendations = document.getElementById('recommendations');
+                recommendations.innerHTML = '';
+                (data.nutrient_recommendations || []).forEach(rec => {
+                    const li = document.createElement('li');
+                    li.textContent = rec;
+                    recommendations.appendChild(li);
+                });
+
+                // Show results
+                document.getElementById('noResults').classList.add('hidden');
+                document.getElementById('resultsContainer').classList.remove('hidden');
+                showAlert('✓ Prediction successful!', 'success');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(`❌ Error: ${error.message}. Make sure backend is running on http://127.0.0.1:9001`, 'error');
+            } finally {
+                document.getElementById('loader').classList.remove('show');
+            }
+        });
+
+        // Check backend on load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:9001/health');
+                if (response.ok) {
+                    showAlert('✓ Backend connected successfully!', 'success');
+                }
+            } catch (error) {
+                showAlert('⚠ Backend not responding. Make sure it\'s running!', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
