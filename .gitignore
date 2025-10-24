@@ -1,0 +1,14 @@
+.env
+.env.local
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+*.egg-info/
+.DS_Store
+.vscode/
+.idea/
+*.log
+models/*.json
+models/*.pkl

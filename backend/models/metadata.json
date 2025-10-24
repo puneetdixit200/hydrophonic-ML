@@ -1,0 +1,20 @@
+{
+  "training_date": "2025-10-24T14:56:38.829764",
+  "n_samples": 1500,
+  "features": [
+    "pH",
+    "EC",
+    "water_temp",
+    "humidity",
+    "visual_condition_encoded"
+  ],
+  "targets": [
+    "health_status",
+    "growth_rate",
+    "nutrient_issue",
+    "yield_score",
+    "disease_risk"
+  ],
+  "model_type": "XGBoost Multi-Output",
+  "scaler_type": "StandardScaler"
+}
