@@ -39,33 +39,28 @@ export const getModelInfo = async () => {
 };
 
 /**
- * Check API health
- * @returns {Promise<Object>} Health status
+ * Health check
+ * @returns {Promise<Object>} API health status
  */
-export const checkHealth = async () => {
+export const healthCheck = async () => {
   try {
     const response = await api.get('/health');
     return response.data;
   } catch (error) {
-    throw new Error('API is not responding');
+    throw new Error('Failed to connect to API');
   }
 };
 
 /**
- * Train/retrain models with custom data
- * @param {FormData} formData - Form data with training data
- * @returns {Promise<Object>} Training result
+ * Request model retraining
+ * @returns {Promise<Object>} Training job response
  */
-export const trainModels = async (formData) => {
+export const retainModel = async () => {
   try {
-    const response = await api.post('/train', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await api.post('/train');
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.detail || 'Failed to train models');
+    throw new Error(error.response?.data?.detail || 'Failed to start retraining');
   }
 };
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
+  InputField,
   SelectField,
   Button,
   ErrorAlert,
@@ -23,11 +24,11 @@ export default function InputDashboard() {
 
   // Form state
   const [formData, setFormData] = useState({
-    pH: '6.5',
-    EC: '1500',
-    water_temp: '22',
-    humidity: '65',
-    visual_condition: 'Healthy',
+    pH: '',
+    EC: '',
+    water_temp: '',
+    humidity: '',
+    visual_condition: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -153,103 +154,91 @@ export default function InputDashboard() {
 
         {/* Main Form Card */}
         <Card title="System Parameters" icon="📊">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* pH Slider */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="text-lg font-semibold text-gray-700">pH Value</label>
-                <div className="text-2xl font-bold text-primary">{parseFloat(formData.pH || 6.5).toFixed(1)}</div>
-              </div>
-              <input
-                type="range"
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* pH Input */}
+            <div>
+              <InputField
+                label="pH Value"
                 name="pH"
-                value={formData.pH || 6.5}
+                value={formData.pH}
                 onChange={handleInputChange}
+                placeholder="Enter pH (5.5-7.0 optimal)"
+                type="number"
                 min="3.0"
                 max="9.0"
                 step="0.1"
-                className="w-full h-3 bg-gradient-to-r from-red-400 to-green-400 rounded-lg appearance-none cursor-pointer slider"
+                error={errors.pH}
+                unit="pH"
               />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>3.0 (Acidic)</span>
-                <span className="text-green-600 font-semibold">5.5-7.0 (Optimal)</span>
-                <span>9.0 (Alkaline)</span>
+              <div className="text-xs text-gray-500 mt-1">
+                💡 Tip: Optimal range for most plants is 5.5-7.0
               </div>
             </div>
 
-            {/* EC/TDS Slider */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="text-lg font-semibold text-gray-700">EC/TDS Value</label>
-                <div className="text-2xl font-bold text-primary">{Math.round(formData.EC || 1500)} µS/cm</div>
-              </div>
-              <input
-                type="range"
+            {/* EC/TDS Input */}
+            <div>
+              <InputField
+                label="EC/TDS Value"
                 name="EC"
-                value={formData.EC || 1500}
+                value={formData.EC}
                 onChange={handleInputChange}
+                placeholder="Enter EC value (1200-1800 optimal)"
+                type="number"
                 min="500"
                 max="3000"
                 step="50"
-                className="w-full h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-lg appearance-none cursor-pointer slider"
+                error={errors.EC}
+                unit="µS/cm"
               />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>500</span>
-                <span className="text-blue-600 font-semibold">1200-1800 (Optimal)</span>
-                <span>3000</span>
+              <div className="text-xs text-gray-500 mt-1">
+                💡 Tip: Typical range is 1200-1800 µS/cm depending on crop
               </div>
             </div>
 
-            {/* Water Temperature Slider */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="text-lg font-semibold text-gray-700">Water Temperature</label>
-                <div className="text-2xl font-bold text-primary">{parseFloat(formData.water_temp || 22).toFixed(1)}°C</div>
-              </div>
-              <input
-                type="range"
+            {/* Water Temperature Input */}
+            <div>
+              <InputField
+                label="Water Temperature"
                 name="water_temp"
-                value={formData.water_temp || 22}
+                value={formData.water_temp}
                 onChange={handleInputChange}
+                placeholder="Enter temperature (18-24 optimal)"
+                type="number"
                 min="5"
                 max="40"
                 step="0.1"
-                className="w-full h-3 bg-gradient-to-r from-blue-500 to-red-500 rounded-lg appearance-none cursor-pointer slider"
+                error={errors.water_temp}
+                unit="°C"
               />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>5°C</span>
-                <span className="text-orange-600 font-semibold">18-24°C (Optimal)</span>
-                <span>40°C</span>
+              <div className="text-xs text-gray-500 mt-1">
+                💡 Tip: Most vegetables prefer 18-24°C water temperature
               </div>
             </div>
 
-            {/* Humidity Slider */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="text-lg font-semibold text-gray-700">Air Humidity</label>
-                <div className="text-2xl font-bold text-primary">{Math.round(formData.humidity || 65)}%</div>
-              </div>
-              <input
-                type="range"
+            {/* Humidity Input */}
+            <div>
+              <InputField
+                label="Air Humidity"
                 name="humidity"
-                value={formData.humidity || 65}
+                value={formData.humidity}
                 onChange={handleInputChange}
+                placeholder="Enter humidity (55-75 optimal)"
+                type="number"
                 min="10"
                 max="100"
                 step="1"
-                className="w-full h-3 bg-gradient-to-r from-yellow-300 to-blue-500 rounded-lg appearance-none cursor-pointer slider"
+                error={errors.humidity}
+                unit="%"
               />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>10%</span>
-                <span className="text-cyan-600 font-semibold">55-75% (Optimal)</span>
-                <span>100%</span>
+              <div className="text-xs text-gray-500 mt-1">
+                💡 Tip: Optimal humidity range is 55-75% for most crops
               </div>
             </div>
 
             {/* Visual Condition Dropdown */}
-            <div className="space-y-3">
-              <label className="text-lg font-semibold text-gray-700">Visual Condition</label>
+            <div>
               <SelectField
+                label="Visual Condition"
                 value={formData.visual_condition}
                 onChange={(e) =>
                   handleInputChange({
